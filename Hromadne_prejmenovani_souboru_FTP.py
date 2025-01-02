@@ -1,4 +1,4 @@
-#Skript uprauje soubory na FTP
+#Skript uprauje a přejmenovává soubory na FTP serveru
 # 123456_URBINOIVrepaintpack_rar.2e8b40bc9e5f3379f76e03939e6365b1 -> URBINOIVrepaintpack.rar
 from ftplib import FTP
 import re
