@@ -1,7 +1,1 @@
-Opravy souborů na FTP.py
-
-Skript uprauje soubory na FTP
-
-Příklad:
-
-123456_URBINOIVrepaintpack_rar.2e8b40bc9e5f3379f76e03939e6365b1 -> URBINOIVrepaintpack.rar
+Různé skripty, které se mohou případně někomu hodit do budoucna. Každé vysvětlení pro skript je zapsáno v daném .py souboru. Veškeré používání je vždy na vlastní zodpovědnost.
