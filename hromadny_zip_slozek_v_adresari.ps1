@@ -1,3 +1,4 @@
+# hromadný zip složek v adresáři pomocí 7zip
 # Zeptáme se na výchozí složku obsahující podsložky
 $SourceFolder = Read-Host "Zadejte cestu ke složce obsahující podsložky" 
 
