@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<title>Docházka PRO</title>
+
+<style>
+:root { --primary:#2c3e50; --accent:#3498db; --danger:#e74c3c; --holiday:#f8d7da; }
+body { font-family: Arial; background:#f4f7f6; margin:0; padding:20px; font-size:14px;}
+.container { max-width:1100px; margin:auto; background:white; padding:25px; border-radius:6px; box-shadow:0 0 10px rgba(0,0,0,.1);}
+.no-print-zone { background:#eef2f7; padding:15px; border-radius:8px; margin-bottom:20px;}
+table { width:100%; border-collapse:collapse;}
+th, td { border:1px solid #ccc; padding:5px; text-align:center;}
+th { background:#f0f0f0;}
+tr.weekend td { background:#f2f2f2;}
+tr.holiday td { background:var(--holiday);}
+input[type="time"], input[type="number"] { padding:3px; width:85px;}
+.summary { display:flex; justify-content:flex-end; gap:40px; margin-top:15px; }
+.stat { text-align:right; }
+.stat b { font-size:16px; }
+.holiday-label { font-size:11px; color:#c0392b; }
+
+@media print {
+    .no-print-zone { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="no-print-zone">
+Jméno: <input id="userName">
+Os.č.: <input id="userId" style="width:80px">
+Měsíc:
+<select id="month"></select>
+Rok:
+<input type="number" id="year" value="2026" style="width:80px">
+Úvazek (h/t):
+<input type="number" id="weeklyHours" value="37.5" step="0.5" style="width:70px">
+<button onclick="window.print()">Tisk</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Datum</th>
+<th>Den</th>
+<th>Začátek</th>
+<th>Konec</th>
+<th>Pauza (min)</th>
+<th>Čisté hod.</th>
+</tr>
+</thead>
+<tbody id="calendarBody"></tbody>
+</table>
+
+<div class="summary">
+<div class="stat">
+Fond dnů: <b id="targetDays">0</b><br>
+Odpracováno: <b id="totalDays">0</b>
+</div>
+<div class="stat">
+Fond hodin: <b id="targetHours">0</b><br>
+Odpracováno: <b id="totalHours">0</b><br>
+Saldo: <b id="diffHours">0</b>
+</div>
+</div>
+
+</div>
+
+<script>
+
+const months = ["Leden","Únor","Březen","Duben","Květen","Červen",
+"Červenec","Srpen","Září","Říjen","Listopad","Prosinec"];
+
+const STORAGE_KEY = "dochazka_pro_v2";
+
+const mSelect = document.getElementById("month");
+months.forEach((m,i)=>mSelect.add(new Option(m,i)));
+
+function getEaster(year){
+    const f=Math.floor;
+    const G=year%19;
+    const C=f(year/100);
+    const H=(C-f(C/4)-f((8*C+13)/25)+19*G+15)%30;
+    const I=H-f(H/28)*(1-f(29/(H+1))*f((21-G)/11));
+    const J=(year+f(year/4)+I+2-C+f(C/4))%7;
+    const L=I-J;
+    const month=3+f((L+40)/44);
+    const day=L+28-31*f(month/4);
+    return new Date(year,month-1,day);
+}
+
+function getHolidays(year){
+    const easter=getEaster(year);
+    const easterMon=new Date(easter);
+    easterMon.setDate(easter.getDate()+1);
+
+    return [
+        `${year}-01-01`,
+        `${year}-05-01`,
+        `${year}-05-08`,
+        `${year}-07-05`,
+        `${year}-07-06`,
+        `${year}-09-28`,
+        `${year}-10-28`,
+        `${year}-11-17`,
+        `${year}-12-24`,
+        `${year}-12-25`,
+        `${year}-12-26`,
+        easterMon.toISOString().slice(0,10)
+    ];
+}
+
+function initCalendar(){
+    const year=+yearInput.value;
+    const month=+mSelect.value;
+    const body=document.getElementById("calendarBody");
+    body.innerHTML="";
+    const days=new Date(year,month+1,0).getDate();
+    const holidays=getHolidays(year);
+
+    for(let d=1; d<=days; d++){
+        const date=new Date(year,month,d);
+        const iso=date.toISOString().slice(0,10);
+        const isWeekend=(date.getDay()==0||date.getDay()==6);
+        const isHoliday=holidays.includes(iso);
+
+        const row=document.createElement("tr");
+        if(isWeekend) row.classList.add("weekend");
+        if(isHoliday) row.classList.add("holiday");
+
+        row.innerHTML=`
+        <td>${d}.${month+1}.${year} ${isHoliday?'<div class="holiday-label">Sv.</div>':''}</td>
+        <td>${date.toLocaleDateString("cs-CZ",{weekday:"short"})}</td>
+        <td><input type="time" class="t-in"></td>
+        <td><input type="time" class="t-out"></td>
+        <td><input type="number" class="pause" min="0" step="5"></td>
+        <td class="total">0.0</td>
+        `;
+
+        body.appendChild(row);
+    }
+
+    attachListeners();
+    updateTarget();
+    restoreData();
+}
+
+function attachListeners(){
+    document.querySelectorAll("input").forEach(el=>{
+        el.onchange=()=>{
+            calculate();
+            saveData();
+        }
+    });
+}
+
+function updateTarget(){
+    const year=+yearInput.value;
+    const month=+mSelect.value;
+    const weekly=+weeklyHours.value;
+    const holidays=getHolidays(year);
+    const days=new Date(year,month+1,0).getDate();
+
+    let workDays=0;
+
+    for(let d=1; d<=days; d++){
+        const date=new Date(year,month,d);
+        const iso=date.toISOString().slice(0,10);
+        if(date.getDay()!=0 && date.getDay()!=6 && !holidays.includes(iso))
+            workDays++;
+    }
+
+    targetDays.innerText=workDays;
+    targetHours.innerText=(workDays*(weekly/5)).toFixed(1);
+}
+
+function calculate(){
+    let total=0;
+    let days=0;
+
+    document.querySelectorAll("#calendarBody tr").forEach(row=>{
+        const tIn=row.querySelector(".t-in").value;
+        const tOut=row.querySelector(".t-out").value;
+        const pauseInput=row.querySelector(".pause");
+        const totalCell=row.querySelector(".total");
+
+        if(tIn && tOut){
+            let s=new Date(`2000-01-01T${tIn}`);
+            let e=new Date(`2000-01-01T${tOut}`);
+            if(e<s) e.setDate(e.getDate()+1);
+
+            let diff=(e-s)/3600000;
+
+            let pause= pauseInput.value? pauseInput.value/60 :
+                diff>10?1: diff>6?0.5:0;
+
+            pauseInput.value=pause*60;
+
+            let net=diff-pause;
+            totalCell.innerText=net.toFixed(1);
+
+            total+=net;
+            days++;
+        } else {
+            totalCell.innerText="0.0";
+        }
+    });
+
+    totalDays.innerText=days;
+    totalHours.innerText=total.toFixed(1);
+    diffHours.innerText=(total - parseFloat(targetHours.innerText)).toFixed(1);
+}
+
+function saveData(){
+    const data=[];
+    document.querySelectorAll("#calendarBody tr").forEach(row=>{
+        data.push({
+            in:row.querySelector(".t-in").value,
+            out:row.querySelector(".t-out").value,
+            pause:row.querySelector(".pause").value
+        });
+    });
+
+    localStorage.setItem(STORAGE_KEY,JSON.stringify({
+        year:yearInput.value,
+        month:mSelect.value,
+        weekly:weeklyHours.value,
+        name:userName.value,
+        id:userId.value,
+        rows:data
+    }));
+}
+
+function restoreData(){
+    const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(!saved) return;
+
+    if(saved.year==yearInput.value && saved.month==mSelect.value){
+        weeklyHours.value=saved.weekly;
+        userName.value=saved.name;
+        userId.value=saved.id;
+
+        document.querySelectorAll("#calendarBody tr").forEach((row,i)=>{
+            if(saved.rows[i]){
+                row.querySelector(".t-in").value=saved.rows[i].in;
+                row.querySelector(".t-out").value=saved.rows[i].out;
+                row.querySelector(".pause").value=saved.rows[i].pause;
+            }
+        });
+        calculate();
+    }
+}
+
+const yearInput=document.getElementById("year");
+const weeklyHours=document.getElementById("weeklyHours");
+const userName=document.getElementById("userName");
+const userId=document.getElementById("userId");
+
+mSelect.value=new Date().getMonth();
+
+yearInput.onchange=initCalendar;
+mSelect.onchange=initCalendar;
+weeklyHours.onchange=()=>{updateTarget();calculate();saveData();};
+
+initCalendar();
+
+</script>
+</body>
+</html>
