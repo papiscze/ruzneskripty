@@ -1,0 +1,16 @@
+#Vytvořit systemd službu: Vytvořit soubor /etc/systemd/system/gateway-monitor.service
+#Zapnout: sudo systemctl daemon-reload a sudo systemctl enable --now gateway-monitor.service
+[Unit]
+Description=Gateway Failover Monitor
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/gateway_monitor.sh
+Restart=always
+User=root
+Group=root
+StandardOutput=append:/var/log/gateway_failover.log
+StandardError=append:/var/log/gateway_failover.log
+
+[Install]
+WantedBy=multi-user.target
