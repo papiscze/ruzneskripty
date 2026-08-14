@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Servisní kniha A5 - Octavia 3 TDI DSG</title>
+    <style>
+        @page { 
+            size: A5 landscape; 
+            margin: 8mm; 
+        }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #f0f0f0; 
+            line-height: 1.2; 
+        }
+        .page { 
+            width: 210mm; 
+            height: 148mm; 
+            background: white; 
+            margin: 0 auto 10mm auto; 
+            padding: 10mm; 
+            box-sizing: border-box; 
+            page-break-after: always; 
+            display: flex; 
+            flex-direction: column;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        h1 { color: #1a5f1f; text-transform: uppercase; margin: 0 0 5px 0; font-size: 22px; border-bottom: 3px solid #1a5f1f; }
+        h2 { font-size: 15px; color: #333; margin: 8px 0 4px 0; background: #f9f9f9; padding: 2px 5px; border-left: 4px solid #1a5f1f; }
+        
+        .info-row { margin: 5px 0; display: flex; font-size: 13px; }
+        .label { font-weight: bold; width: 115px; }
+        .value { border-bottom: 1px solid #333; flex-grow: 1; min-height: 16px; }
+        
+        .service-block { border: 1.5px solid #333; padding: 8px; flex-grow: 1; position: relative; display: flex; flex-direction: column; }
+        .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 12px; margin-bottom: 8px; }
+        .check-item { font-size: 10px; display: flex; align-items: center; border-bottom: 1px solid #f2f2f2; padding: 1px 0; }
+        .box { width: 11px; height: 11px; border: 1.5px solid #000; margin-right: 6px; flex-shrink: 0; background: #fff; }
+        
+        .hint { font-size: 8px; color: #777; margin-left: auto; font-style: italic; }
+        
+        .stamp-box { position: absolute; bottom: 8px; right: 8px; width: 110px; height: 65px; border: 1px dashed #999; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 8px; color: #999; background: #fff; }
+        .notes { font-size: 11px; margin-top: 5px; }
+        .notes-line { border-bottom: 1px solid #ddd; height: 18px; width: 80%; }
+        
+        .next-service { margin-top: auto; padding: 4px; border: 1px solid #ffe082; background: #fffde7; font-size: 11px; width: 50%; font-weight: bold; }
+
+        @media print { 
+            body { background: none; } 
+            .page { margin: 0; box-shadow: none; width: 100%; height: 100%; } 
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <h1>Servisní kniha</h1>
+    <div style="text-align: center; margin: 15px 0;">
+        <div style="font-size: 30px; font-weight: bold; color: #1a5f1f;">ŠKODA OCTAVIA III</div>
+        <div style="font-size: 14px; color: #666;">Modelová řada 5E | TDI & DSG</div>
+    </div>
+    
+    <h2>Identifikace vozidla</h2>
+    <div class="info-row"><div class="label">VIN:</div><div class="value"></div></div>
+    <div class="info-row"><div class="label">SPZ:</div><div class="value"></div></div>
+    <div class="info-row"><div class="label">Kód motoru/přev.:</div><div class="value"></div></div>
+    
+    <h2>Provozní náplně</h2>
+    <div class="info-row"><div class="label">Motorový olej:</div><div class="value">VW 507.00 (SAE 0W-30 / 5W-30)</div></div>
+    <div class="info-row"><div class="label">DSG olej:</div><div class="value">Dle specifikace převodovky (DQ250 / DQ381)</div></div>
+    <div class="info-row"><div class="label">Chladicí kapalina:</div><div class="value">G12evo / G13</div></div>
+    
+    <div style="margin-top: auto; font-size: 9px; color: #444; border-top: 1px solid #ccc; padding-top: 5px;">
+        Doporučený servisní interval: 15 000 km / 1 rok. DSG olej: 60 000 km. Rozvody: kontrola od 150t km, výměna 210t km.
+    </div>
+</div>
+
+<div class="page">
+    <h2>Záznam servisní prohlídky</h2>
+    <div class="info-row">
+        <div class="label">Datum:</div><div class="value"></div>
+        <div class="label" style="width:60px; margin-left:15px;">Stav km:</div><div class="value"></div>
+    </div>
+    
+    <div class="service-block">
+        <div class="check-grid">
+            <div class="check-item"><div class="box"></div> Olej motor + filtr <span class="hint">15t km / 1r</span></div>
+            <div class="check-item"><div class="box"></div> Olej v DSG + filtr <span class="hint">60t km</span></div>
+            <div class="check-item"><div class="box"></div> Palivový filtr (nafta) <span class="hint">30-60t km</span></div>
+            <div class="check-item"><div class="box"></div> Vzduchový filtr motoru <span class="hint">30t km</span></div>
+            <div class="check-item"><div class="box"></div> Kabinový (pylový) filtr <span class="hint">15t / 1r</span></div>
+            <div class="check-item"><div class="box"></div> Brzdová kapalina <span class="hint">2 roky</span></div>
+            <div class="check-item"><div class="box"></div> Rozvody + vodní pumpa</div>
+            <div class="check-item"><div class="box"></div> Drážkovaný řemen (pohon)</div>
+            <div class="check-item"><div class="box"></div> Servis klimatizace + dezinfekce</div>
+            <div class="check-item"><div class="box"></div> Diagnostika (VAG) - paměť závad</div>
+            <div class="check-item"><div class="box"></div> Kontrola brzd (kotouče, desky)</div>
+            <div class="check-item"><div class="box"></div> Kontrola těsnosti (motor, převod.)</div>
+            <div class="check-item"><div class="box"></div> Nápravy, čepy, tlumiče, manžety</div>
+            <div class="check-item"><div class="box"></div> Výfukový systém a DPF</div>
+            <div class="check-item"><div class="box"></div> Akumulátor (zátěžový test)</div>
+            <div class="check-item"><div class="box"></div> Osvětlení (vnější i vnitřní)</div>
+            <div class="check-item"><div class="box"></div> Čištění odtoků (pod stěrači)</div>
+            <div class="check-item"><div class="box"></div> Pneu (tlak, vzorek, sada opravy)</div>
+            <div class="check-item"><div class="box"></div> Kontrola karoserie (koroze)</div>
+            <div class="check-item"><div class="box"></div> Testovací jízda</div>
+        </div>
+        
+        <div class="notes">
+            <strong>Doplňující opravy a poznámky:</strong>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+        </div>
+
+        <div class="next-service">Příští servis: __________ km / datum: ________</div>
+        <div class="stamp-box">RAZÍTKO A PODPIS SERVISU</div>
+    </div>
+</div>
+
+</body>
+</html>
