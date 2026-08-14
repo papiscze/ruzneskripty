@@ -1,0 +1,30 @@
+#Nakonfigurovat Netplan: Vložit novou konfiguraci do /etc/netplan/ a dát sudo netplan apply.
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp3s0f0:
+      dhcp4: no
+      addresses:
+        - 192.168.17.250/24
+      routes:
+        - to: default
+          via: 192.168.17.1
+          metric: 100
+      nameservers:
+        addresses:
+          - 1.1.1.1
+          - 8.8.8.8
+
+    enp3s0f1:
+      dhcp4: no
+      addresses:
+        - 192.168.8.250/24   # Zde nastav statickou IP pro záložní síť (případně změň dle potřeby)
+      routes:
+        - to: default
+          via: 192.168.8.1
+          metric: 200
+      nameservers:
+        addresses:
+          - 1.1.1.1
+          - 8.8.8.8
